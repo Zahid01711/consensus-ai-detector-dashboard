@@ -1,0 +1,123 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String            @id @default(uuid())
+  email        String            @unique
+  passwordHash String
+  name         String
+  role         String            @default("STUDENT") // "ADMIN" | "STUDENT"
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  
+  // Relations
+  scans        Scan[]
+  documents    Document[]
+  permissions  UserPermission[]
+  auditLogs    AuditLog[]
+}
+
+model ProviderConfig {
+  id               String            @id @default(uuid())
+  key              String            @unique // Internal identifier (e.g. "gptzero", "copyleaks", "sapling")
+  name             String            // Display name
+  apiKeyEncrypted  String?           // Encrypted API key stored at rest
+  additionalConfig String?           // Encrypted JSON for additional parameters
+  isEnabled        Boolean           @default(false)
+  isMockMode       Boolean           @default(true) // Allows running mock responses
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  
+  // Relations
+  permissions      UserPermission[]
+}
+
+model UserPermission {
+  id         String         @id @default(uuid())
+  userId     String
+  providerId String
+  createdAt  DateTime       @default(now())
+
+  // Relations
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider   ProviderConfig @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, providerId])
+}
+
+model Document {
+  id          String   @id @default(uuid())
+  title       String
+  contentText String
+  fileUrl     String?
+  fileType    String   // "pdf" | "docx" | "txt"
+  fileSize    Int      // Bytes
+  userId      String
+  createdAt   DateTime @default(now())
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scans       Scan[]
+}
+
+model Scan {
+  id            String     @id @default(uuid())
+  documentId    String
+  userId        String
+  combinedScore Float?     // Average score (0-100) or null
+  status        String     @default("PENDING") // "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED"
+  errorMessage  String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  // Relations
+  document      Document   @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobs          ScanJob[]
+}
+
+model ScanJob {
+  id           String     @id @default(uuid())
+  scanId       String
+  providerKey  String     // e.g. "gptzero"
+  status       String     @default("PENDING") // "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED"
+  score        Float?     // Normalized score (0-100)
+  rawResponse  String?    // JSON response for audit trail
+  errorMessage String?
+  durationMs   Int?       // Response duration
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  // Relations
+  scan         Scan       @relation(fields: [scanId], references: [id], onDelete: Cascade)
+
+  @@unique([scanId, providerKey])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  email     String?
+  action    String
+  details   String
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model SystemSettings {
+  id            String   @id @default(uuid())
+  retentionDays Int      @default(30)
+  fileLimitMb   Int      @default(10)
+  weightsJson   String   @default("{}") // Store weight configuration per provider
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
