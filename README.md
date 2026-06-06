@@ -1,142 +1,129 @@
-# Multi-Detector AI Review Dashboard
+# Consensus AI Detector Dashboard (Unified Multi-Detector AI Review Platform)
 
-A secure, academic-focused web application where teachers/administrators can manage AI-detection provider credentials, customize student permission policies, and audit uploads. Student reviewers can upload documents (PDF, Word, TXT), perform consolidated scans against enabled providers, and download official assessment reports.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+[![Next.js](https://img.shields.io/badge/Next.js-15-blue.svg)](https://nextjs.org/)
 
-The platform relies **only** on official APIs (no scraping) and provides a highly polished, premium minimalist UI.
+An open-source, highly polished **Unified AI Detector Consensus Dashboard** that aggregates writing reviews from multiple AI detection providers (such as Sapling, WasItAIGenerated, GPTZero, and Copyleaks) into a single, cohesive consensus score. 
+
+Originally developed as an Honors Research Project, this platform has been fully open-sourced to provide educators, researchers, and students with a fair, multi-perspective evaluation tool that reduces false-positives and statistical biases inherent in single-detector models.
 
 ---
 
 ## 🚀 Key Features
 
-* **Consolidated Scoring**: Automatically calculates a simple average of completed provider checks to generate an **AI-risk indicator**. Excludes offline, missing-key, or failed provider scans and flags single-platform results.
-* **Security at Rest**: Provider API keys are encrypted at rest using AES-256-GCM and never exposed to the frontend.
-* **Asynchronous Scanning**: Splits scans into separate provider jobs processed in the background, preventing connection timeouts.
-* **Role-Based Access Control**: Strict middleware filters separating admin settings (credentials, student permissions, system configs) from student upload workspaces.
-* **Detailed Audit Trails**: Implements an immutable log ledger tracking student logins, credential updates, account changes, and scan details.
-* **Hybrid Text Extraction**: Direct Node-based extractors for PDF (`pdf-parse`) and DOCX (`mammoth`), plus an optional Python FastAPI extractor service.
-* **Simulator/Mock Mode**: Full platform evaluation can run locally with simulated provider latency and deterministic scores without paid API credentials.
+* **Consolidated Consensus Scoring**: Automatically averages results from active detector APIs (e.g., perplexity, burstiness, and probability classifiers) to calculate a **Consolidated AI Risk Score**. Offline or failed scans are dynamically filtered out.
+* **Out-of-the-Box Demo / Mock Mode**: No API keys? No problem. The seeder defaults all providers to **Mock Mode**, allowing you to instantly test file uploads, queue tasks, and view final reports with simulated latency and deterministic results.
+* **Background Asynchronous Scanning**: Avoids HTTP timeout failures. Spawns database-backed background jobs processed asynchronously outside the main request thread.
+* **AES-256-GCM Encryption at Rest**: Fully secures provider credentials in memory. API keys are encrypted at rest and never exposed to the frontend.
+* **Hybrid Text Extraction**: Direct server-side parsers for PDFs (utilizing `pdf-parse` classes), Word Documents (`mammoth`), and plain text.
+* **Role-Based Access Control (RBAC)**: Custom signed JWT cookies separating student reviewer workspaces from admin dashboard controls.
+* **Detailed Audit Trails**: Keeps an immutable, admin-viewable audit log tracking logins, setting changes, permission updates, and scan jobs.
 
 ---
 
 ## 🛠️ Tech Stack
 
-* **Frontend & Backend**: Next.js 15 (App Router), TypeScript, Tailwind CSS v4, Lucide React
-* **Database & ORM**: PostgreSQL (SQLite fallback for dev), Prisma ORM
+* **Frontend & Backend**: Next.js 15 (App Router), TypeScript, Tailwind CSS v4, Lucide Icons
+* **Database & ORM**: SQLite (Default for local testing) or PostgreSQL (Production fallback), mapped via Prisma ORM
 * **Authentication**: Custom signed JWTs stored in secure, HttpOnly session cookies
-* **PDF Report Generation**: jsPDF (client-side) & ReportLab (operations guide compiler)
+* **PDF Report Generation**: jsPDF (client-side) & ReportLab (operations report compiler)
 
 ---
 
-## 📂 Project Structure
-
-```
-├── prisma/
-│   ├── schema.prisma           # Active Prisma schema (Postgres default)
-│   ├── schema.sqlite.prisma    # SQLite fallback schema
-│   └── seed.ts                 # Database seeder (creates default admin & student accounts)
-├── src/
-│   ├── middleware.ts           # Route guard & RBAC cookie check
-│   ├── app/
-│   │   ├── page.tsx            # Redirection router
-│   │   ├── login/              # Secure credentials login page
-│   │   ├── admin/              # Teacher dashboards & settings
-│   │   ├── student/            # Student upload panels & progress tracking
-│   │   ├── reports/            # Consolidated scan reports
-│   │   └── api/                # REST endpoints (auth, admins, scans)
-│   ├── components/
-│   │   ├── ui/                 # Custom Tailwind UI component kit (Button, Card, Table, etc.)
-│   │   └── Sidebar.tsx         # Sidebar navigation
-│   └── lib/
-│       ├── db.ts               # Prisma client singleton
-│       ├── encryption.ts       # AES-255-GCM API key encryption
-│       ├── session.ts          # JWT session sign/verify utilities
-│       ├── extractor.ts        # Server-side text parser
-│       ├── queue.ts            # Database-backed background worker
-│       └── adapters/           # API integration adapters (GPTZero, Copyleaks, etc.)
-├── doc/
-│   └── manual.pdf              # Compiled operations guide PDF
-├── extractor-service/          # Optional Python FastAPI extraction service
-└── scripts/
-    └── generate_manual_pdf.py  # ReportLab script to compile the manual
-```
-
----
-
-## ⚙️ Quick Start (Local Development)
+## ⚙️ Quick Start (Local Setup)
 
 ### 1. Prerequisites
-- **Node.js**: Version 20 or higher (Node 24 is fully supported)
-- **Database**: PostgreSQL (or SQLite, see step 3)
+* **Node.js**: Version 20 or higher (Node 24 fully supported)
+* **Git**: To clone the project
 
-### 2. Install Dependencies
-Run the package installer in the project root:
+### 2. Clone the Repository
+```bash
+git clone https://github.com/Zahid01711/consensus-ai-detector-dashboard.git
+cd consensus-ai-detector-dashboard
+```
+
+### 3. Install Dependencies
 ```bash
 npm install
 ```
 
-### 3. Choose Your Database Provider
-By default, the project is configured for **PostgreSQL**. A `docker-compose.yml` file is provided in the root to boot a local container easily:
-```bash
-docker-compose up -d
-```
-
-#### Fallback to SQLite (No Setup Required):
-If you do not have PostgreSQL or Docker running, you can switch the project to use a local **SQLite** file by running the included utility:
+### 4. Switch to local SQLite (Recommended for testing)
+To run without setting up Docker or a PostgreSQL instance, configure the project to use a local SQLite file database:
 ```bash
 # Windows PowerShell
 powershell -ExecutionPolicy Bypass -File .\switch-to-sqlite.ps1
 ```
-This automatically updates your active schema and configures the connection string in your `.env`.
+This automatically updates the Prisma schema and creates your local `.env` configuration.
 
-### 4. Setup Environment Config
-Create your `.env` file (copied automatically if using the SQLite switch script):
+### 5. Setup Environment File
+Copy the example template to create your environment variables:
 ```bash
 cp .env.example .env
 ```
-Ensure `JWT_SECRET` and `ENCRYPTION_KEY` (32-byte hex string) are configured.
+*(Optionally edit `.env` to input your live `SAPLING_API_KEY`, `COPYLEAKS_API_KEY`, or `WASITAIGENERATED_API_KEY` to test in Live mode instead of Mock mode).*
 
-### 5. Initialize the Database
-Push the schema structure and run the seeder:
+### 6. Initialize & Seed Database
+Build the database tables and populate the default demo accounts:
 ```bash
-# Push schema structure
 npx prisma db push
-
-# Seed default credentials and provider list
 npx prisma db seed
 ```
 
-### 6. Run the Next.js App
-Start the local development server:
+### 7. Run the Development Server
 ```bash
 npm run dev
 ```
-Open your browser to `http://localhost:3000`.
+Open `http://localhost:3000` in your browser.
 
 ---
 
-## 🔐 Seed Credentials
+## 🔐 Default Demo Login Credentials
+The seeder creates default profiles pre-configured in **Mock Mode** for immediate verification:
 
-The seeder creates three default profiles with **Mock Mode** pre-configured:
-
-* **Teacher/Admin Account**:
-  - Email: `admin@school.edu`
-  - Password: `AdminPass123`
-* **Student Reviewer 1**:
-  - Email: `student1@school.edu`
-  - Password: `StudentPass123`
-* **Student Reviewer 2**:
-  - Email: `student2@school.edu`
-  - Password: `StudentPass123`
+* **Teacher / Admin Account**:
+  * **Email**: `admin@school.edu`
+  * **Password**: `AdminPass123`
+* **Student Reviewer Account 1**:
+  * **Email**: `student1@school.edu`
+  * **Password**: `StudentPass123`
+* **Student Reviewer Account 2**:
+  * **Email**: `student2@school.edu`
+  * **Password**: `StudentPass123`
 
 ---
 
-## 📖 PDF Manual & Documentation
+## 🚀 Deployment & Production Hosting
 
-A complete operations guide explaining keys configuration, combined scoring mathematics, and student workflows has been compiled to:
-- [manual.pdf](file:///F:/UNCP_Reaserch/dr. mohan honors ai detection/doc/manual.pdf) (ReportLab Compiled PDF)
-- [manual.md](file:///F:/UNCP_Reaserch/dr. mohan honors ai detection/doc/manual.md) (Source Markdown text)
+### Deploying to Vercel + Neon (PostgreSQL)
+To host the dashboard online for team access:
+1. Create a free PostgreSQL instance on **Neon.tech** or **Supabase.com** and copy the database connection URI.
+2. Push your project to GitHub (remember, `.env` and `prisma/dev.db` are gitignored and safe).
+3. Connect your repository to Vercel.
+4. Define your production environment variables in the Vercel dashboard:
+   * `DATABASE_URL`: Your transaction PostgreSQL connection string.
+   * `DIRECT_URL`: Your direct session PostgreSQL connection string (for migrations).
+   * `JWT_SECRET`: A secure random string for signing JWT cookies.
+   * `ENCRYPTION_KEY`: A random 32-byte hexadecimal string (64 characters) to encrypt API keys.
+5. Set Vercel's build command to run database migrations before compiling:
+   ```bash
+   npx prisma db push && next build
+   ```
 
-To recompile the manual PDF at any time, run:
-```bash
-python scripts/generate_manual_pdf.py
-```
+---
+
+## 🤝 Contributing & Community
+We welcome contributions from researchers, software developers, and students! Whether you want to add new AI detector adapters (e.g., Winston AI, Writer, ZeroGPT), fix visual layouts, or improve text extraction scripts:
+
+1. **Fork** the repository.
+2. Create a feature branch: `git checkout -b feature/cool-new-adapter`.
+3. Commit your changes: `git commit -m "Add GPTZero adapter support"`.
+4. **Push** to the branch: `git push origin feature/cool-new-adapter`.
+5. Submit a **Pull Request**.
+
+Please review the issues tab to find open tasks, or create a new issue to discuss proposed features.
+
+---
+
+## 📄 License
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
