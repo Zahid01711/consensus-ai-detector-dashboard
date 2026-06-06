@@ -149,14 +149,13 @@ def build_pdf():
 
     # ================= PAGE 1: COVER PAGE =================
     story.append(Spacer(1, 1.2 * inch))
-    story.append(Paragraph("A CONSOLIDATED AI DETECTION DASHBOARD<br/>FOR ACADEMIC INTEGRITY", title_style))
+    story.append(Paragraph("CONSENSUS AI DETECTOR DASHBOARD", title_style))
     story.append(Spacer(1, 0.15 * inch))
-    story.append(Paragraph("Designing a Unified Multi-Platform Consensus Framework for Writing Review", subtitle_style))
+    story.append(Paragraph("A Unified Multi-Platform Consensus Framework for Academic Integrity & Writing Review", subtitle_style))
     story.append(Spacer(1, 0.8 * inch))
-    story.append(Paragraph("<b>Submitted by:</b> MD Zahidul Islam (Honors Program Student & Research Assistant)", meta_style))
-    story.append(Paragraph("<b>Research Advisor:</b> Dr. Mohan", meta_style))
-    story.append(Paragraph("<b>Institution:</b> Honors Research Program", meta_style))
-    story.append(Paragraph("<b>Project Version:</b> 1.1.0 (Resource-Optimized Production Build)", meta_style))
+    story.append(Paragraph("<b>Author:</b> MD Zahidul Islam", meta_style))
+    story.append(Paragraph("<b>Origin:</b> Honors Research Project (Open-Sourced to Community)", meta_style))
+    story.append(Paragraph("<b>Project Version:</b> 1.2.0 (Open-Source Production Release)", meta_style))
     story.append(Paragraph("<b>Date:</b> June 2026", meta_style))
     story.append(PageBreak())
 
@@ -362,12 +361,12 @@ def build_pdf():
         # Header text
         canvas.setFont('Helvetica-Bold', 7.5)
         canvas.setFillColor(indigo)
-        canvas.drawString(54, doc.pagesize[1] - 35, "HONORS RESEARCH PROJECT - CONSOLIDATED AI DETECTION")
+        canvas.drawString(54, doc.pagesize[1] - 35, "UNIFIED MULTI-DETECTOR AI CONSENSUS PLATFORM")
         
         # Footer text
         canvas.setFont('Helvetica', 8)
         canvas.setFillColor(slate)
-        canvas.drawString(54, 30, "Honors Program Project Report & Documentation")
+        canvas.drawString(54, 30, "Consensus AI Detector Dashboard - Project Documentation")
         canvas.drawRightString(doc.pagesize[0] - 54, 30, f"Page {doc.page}")
         canvas.restoreState()
 
