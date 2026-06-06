@@ -29,6 +29,30 @@ Originally developed as an Honors Research Project, this platform has been fully
 * **Authentication**: Custom signed JWTs stored in secure, HttpOnly session cookies
 * **PDF Report Generation**: jsPDF (client-side) & ReportLab (operations report compiler)
 
+## 🌐 Interactive Cloud Testing (No Installation Required)
+
+You can explore and test the dashboard completely in your browser without cloning or downloading anything:
+
+### 1. Launch a Live Test Environment (GitHub Codespaces)
+GitHub Codespaces provides a free, secure cloud development environment.
+* Click the green **Code** button at the top right of this repository.
+* Select the **Codespaces** tab, then click **Create codespace on main**.
+* Once the built-in terminal at the bottom of the browser-based editor loads, run these commands in sequence to initialize the project:
+  ```bash
+  npm install
+  powershell -ExecutionPolicy Bypass -File .\switch-to-sqlite.ps1
+  cp .env.example .env
+  npx prisma db push
+  npx prisma db seed
+  npm run dev
+  ```
+* Codespaces will detect port 3000 and display a popup: *"Your application running on port 3000 is available."* Click **Open in Browser** to launch the live dashboard.
+
+### 2. Browse Code in VS Code Web (The `.` Shortcut)
+To browse the source files, folder structures, and check the code with full syntax highlighting instantly:
+* On this repository page, press the period key (`.`) on your keyboard.
+* The page will redirect to `github.dev` (an online VS Code editor) inside your current browser tab.
+
 ---
 
 ## ⚙️ Quick Start (Local Setup)
